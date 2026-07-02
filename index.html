@@ -3,41 +3,232 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>lasotuvi JSON dump</title>
+  <title>lasotuvi viewer</title>
   <style>
-    body { font-family: system-ui, sans-serif; max-width: 1100px; margin: 24px auto; padding: 0 16px; }
-    form { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
-    label { display: grid; gap: 6px; font-size: 14px; }
-    input, select, button, textarea { font: inherit; padding: 10px 12px; }
-    button { grid-column: 1 / -1; cursor: pointer; }
-    textarea { width: 100%; min-height: 520px; margin-top: 16px; white-space: pre; }
-    .status { margin: 12px 0; padding: 10px 12px; background: #f3f4f6; border-radius: 8px; }
+    :root {
+      --bg: #0b1020;
+      --panel: #121933;
+      --panel-2: #182243;
+      --text: #e8ecf8;
+      --muted: #a6b0d0;
+      --line: #2a3768;
+      --accent: #6ea8fe;
+      --good: #2fbf71;
+      --bad: #ff7a7a;
+      --warn: #ffcc66;
+      --shadow: 0 10px 30px rgba(0,0,0,.28);
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: Inter, system-ui, sans-serif;
+      background: radial-gradient(circle at top, #162247 0, var(--bg) 45%);
+      color: var(--text);
+    }
+    .wrap { max-width: 1440px; margin: 0 auto; padding: 24px; }
+    .hero { display: flex; justify-content: space-between; gap: 16px; align-items: end; margin-bottom: 20px; }
+    .title { font-size: 30px; font-weight: 800; margin: 0; }
+    .sub { color: var(--muted); margin-top: 8px; }
+    .status {
+      padding: 10px 14px; border: 1px solid var(--line); border-radius: 999px;
+      background: rgba(255,255,255,.04); color: var(--muted); white-space: nowrap;
+    }
+    .panel {
+      background: linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.02));
+      border: 1px solid var(--line); border-radius: 20px; box-shadow: var(--shadow);
+    }
+    .controls { padding: 18px; margin-bottom: 20px; }
+    .grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px; }
+    label { display: grid; gap: 6px; font-size: 13px; color: var(--muted); }
+    input, select, button, textarea {
+      width: 100%; border: 1px solid var(--line); border-radius: 12px; background: var(--panel-2);
+      color: var(--text); padding: 12px 14px; font: inherit;
+    }
+    button {
+      background: linear-gradient(180deg, #6ea8fe, #3d7bfd);
+      border: 0; color: #081224; font-weight: 800; cursor: pointer;
+    }
+    button:hover { filter: brightness(1.05); }
+    .actions { display: flex; gap: 12px; grid-column: 1 / -1; }
+    .actions button.secondary { background: #24325d; color: var(--text); border: 1px solid var(--line); }
+    .summary {
+      display: grid; grid-template-columns: 1.1fr 1fr; gap: 20px; margin-bottom: 20px;
+    }
+    .card { padding: 18px; }
+    .meta-grid { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 10px 14px; }
+    .meta-item { padding: 10px 12px; background: rgba(255,255,255,.03); border-radius: 12px; }
+    .meta-item b { display: block; color: var(--muted); font-size: 12px; margin-bottom: 4px; }
+    .board {
+      display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px;
+      grid-template-areas:
+        "p12 p1 p2 p3"
+        "p11 c c p4"
+        "p10 c c p5"
+        "p9 p8 p7 p6";
+    }
+    .center {
+      grid-area: c; min-height: 250px; padding: 20px; display: flex; flex-direction: column; gap: 12px; justify-content: center;
+      background: linear-gradient(160deg, rgba(110,168,254,.18), rgba(255,255,255,.03));
+    }
+    .palace {
+      min-height: 220px; padding: 14px; display: flex; flex-direction: column; gap: 10px;
+      background: rgba(255,255,255,.03);
+    }
+    .palace-head { display: flex; justify-content: space-between; gap: 8px; align-items: start; }
+    .palace-title { font-weight: 800; line-height: 1.2; }
+    .palace-sub { color: var(--muted); font-size: 12px; margin-top: 4px; }
+    .badge-wrap { display: flex; flex-wrap: wrap; gap: 6px; justify-content: end; }
+    .badge {
+      font-size: 11px; padding: 4px 8px; border-radius: 999px; border: 1px solid var(--line); color: var(--muted);
+    }
+    .badge.than { color: #a5ffd6; border-color: rgba(47,191,113,.45); }
+    .badge.tuan, .badge.triet { color: #ffd89e; border-color: rgba(255,204,102,.4); }
+    .stars { display: flex; flex-wrap: wrap; gap: 8px; align-content: start; }
+    .star {
+      padding: 6px 10px; border-radius: 999px; background: #22315f; border: 1px solid rgba(255,255,255,.06);
+      font-size: 12px; line-height: 1;
+    }
+    .star.good { background: rgba(47,191,113,.16); color: #abf5ca; }
+    .star.bad { background: rgba(255,122,122,.14); color: #ffc0c0; }
+    details { margin-top: 20px; }
+    summary { cursor: pointer; color: var(--muted); }
+    textarea { min-height: 360px; margin-top: 12px; }
+    .small { font-size: 12px; color: var(--muted); }
+    @media (max-width: 1100px) {
+      .grid, .summary, .board, .meta-grid { grid-template-columns: repeat(2, minmax(0,1fr)); }
+      .board { grid-template-areas: none; }
+      .center, .palace { grid-area: auto !important; }
+    }
+    @media (max-width: 720px) {
+      .wrap { padding: 14px; }
+      .grid, .summary, .board, .meta-grid { grid-template-columns: 1fr; }
+      .hero { flex-direction: column; align-items: start; }
+      .actions { flex-direction: column; }
+    }
   </style>
 </head>
 <body>
-  <h1>lasotuvi JSON dump</h1>
-  <div class="status" id="status">Loading Pyodide...</div>
-  <form id="f">
-    <label>Họ tên <input id="name" value="WANG WENYIN"></label>
-    <label>Giới tính
-      <select id="gender"><option value="1">Dương Nam</option><option value="-1">Âm Nữ</option></select>
-    </label>
-    <label>Dương lịch?
-      <select id="solar"><option value="1">Có</option><option value="0">Không</option></select>
-    </label>
-    <label>Múi giờ <input id="tz" type="number" value="7"></label>
-    <label>Ngày <input id="day" type="number" value="2"></label>
-    <label>Tháng <input id="month" type="number" value="3"></label>
-    <label>Năm <input id="year" type="number" value="1968"></label>
-    <label>Giờ chi <input id="hour" type="number" min="1" max="12" value="5"></label>
-    <button type="submit">Xuất JSON</button>
-  </form>
-  <textarea id="out" spellcheck="false"></textarea>
+  <div class="wrap">
+    <div class="hero">
+      <div>
+        <h1 class="title">Tử Vi Viewer</h1>
+        <div class="sub">Nhập ngày sinh, giờ chi, giới tính. Render 12 cung trực tiếp trên GitHub Pages.</div>
+      </div>
+      <div class="status" id="status">Loading engine...</div>
+    </div>
+
+    <div class="panel controls">
+      <form id="f" class="grid">
+        <label>Họ tên<input id="name" value="WANG WENYIN"></label>
+        <label>Giới tính
+          <select id="gender"><option value="1">Dương Nam</option><option value="-1">Âm Nữ</option></select>
+        </label>
+        <label>Dương lịch?
+          <select id="solar"><option value="1">Có</option><option value="0">Không</option></select>
+        </label>
+        <label>Múi giờ<input id="tz" type="number" value="7"></label>
+        <label>Ngày<input id="day" type="number" value="2"></label>
+        <label>Tháng<input id="month" type="number" value="3"></label>
+        <label>Năm<input id="year" type="number" value="1968"></label>
+        <label>Giờ chi (1=Tý..12=Hợi)<input id="hour" type="number" min="1" max="12" value="5"></label>
+        <div class="actions">
+          <button type="submit">Lập lá số</button>
+          <button type="button" class="secondary" id="copyJson">Copy JSON</button>
+        </div>
+      </form>
+    </div>
+
+    <div class="summary">
+      <div class="panel card">
+        <h2>Thông tin</h2>
+        <div class="meta-grid" id="meta"></div>
+      </div>
+      <div class="panel card center" id="centerCard">
+        <div style="font-size:20px;font-weight:800" id="centerName">Chưa có dữ liệu</div>
+        <div class="small" id="centerDesc">Bấm “Lập lá số” để xem 12 cung.</div>
+      </div>
+    </div>
+
+    <div class="board" id="board"></div>
+
+    <details class="panel card">
+      <summary>JSON thô</summary>
+      <textarea id="out" spellcheck="false"></textarea>
+    </details>
+  </div>
 
   <script src="https://cdn.jsdelivr.net/pyodide/v0.26.2/full/pyodide.js"></script>
   <script>
     let pyodide;
-    const status = document.getElementById('status');
+    let lastPayload = null;
+    const statusEl = document.getElementById('status');
+    const boardEl = document.getElementById('board');
+    const metaEl = document.getElementById('meta');
+    const outEl = document.getElementById('out');
+    const palaceAreaMap = {12:'p12',1:'p1',2:'p2',3:'p3',11:'p11',4:'p4',10:'p10',5:'p5',9:'p9',8:'p8',7:'p7',6:'p6'};
+
+    function metaItem(label, value) {
+      return `<div class="meta-item"><b>${label}</b><span>${value ?? ''}</span></div>`;
+    }
+
+    function starClass(star) {
+      if (star.saoLoai <= 8) return 'good';
+      if (star.saoLoai >= 11) return 'bad';
+      return '';
+    }
+
+    function formatStar(star) {
+      return `${star.saoTen}${star.saoDacTinh ? `(${star.saoDacTinh})` : ''}`;
+    }
+
+    function renderMeta(data) {
+      const t = data.thienBan;
+      metaEl.innerHTML = [
+        metaItem('Họ tên', t.ten || '—'),
+        metaItem('Giới tính', t.namNu),
+        metaItem('Dương lịch', `${t.ngayDuong}/${t.thangDuong}/${t.namDuong}`),
+        metaItem('Âm lịch', `${t.ngayAm}/${t.thangAm}/${t.canNamTen} ${t.chiNamTen}`),
+        metaItem('Giờ sinh', t.gioSinh),
+        metaItem('Âm dương', `${t.amDuongNamSinh} ${t.namNu} / ${t.amDuongMenh}`),
+        metaItem('Bản mệnh', t.banMenh),
+        metaItem('Cục', t.tenCuc),
+        metaItem('Mệnh chủ', t.menhChu),
+        metaItem('Thân chủ', t.thanChu),
+        metaItem('Mệnh/Cục', t.sinhKhac),
+        metaItem('Can chi ngày', `${t.canNgayTen} ${t.chiNgayTen}`),
+      ].join('');
+
+      document.getElementById('centerName').textContent = t.ten || 'Không tên';
+      document.getElementById('centerDesc').textContent = `${t.namNu} • ${t.gioSinh} • ${t.banMenh} • ${t.tenCuc}`;
+    }
+
+    function renderBoard(data) {
+      const palaces = [...data.diaBan.palaces].sort((a, b) => a.cungSo - b.cungSo);
+      boardEl.innerHTML = '';
+      for (const palace of palaces) {
+        const tags = [];
+        if (palace.cungThan) tags.push('<span class="badge than">Thân</span>');
+        if (palace.tuanTrung) tags.push('<span class="badge tuan">Tuần</span>');
+        if (palace.trietLo) tags.push('<span class="badge triet">Triệt</span>');
+        const stars = palace.stars.length
+          ? palace.stars.map(star => `<span class="star ${starClass(star)}">${formatStar(star)}</span>`).join('')
+          : '<span class="small">Không có sao</span>';
+        const div = document.createElement('div');
+        div.className = 'panel palace';
+        div.style.gridArea = palaceAreaMap[palace.cungSo] || 'auto';
+        div.innerHTML = `
+          <div class="palace-head">
+            <div>
+              <div class="palace-title">${palace.cungChu || '—'} <span style="color:var(--muted)">(${palace.cungTen})</span></div>
+              <div class="palace-sub">ĐV ${palace.cungDaiHan ?? '—'} • Tiểu hạn ${palace.cungTieuHan ?? '—'} • Hành ${palace.hanhCung}</div>
+            </div>
+            <div class="badge-wrap">${tags.join('')}</div>
+          </div>
+          <div class="stars">${stars}</div>
+        `;
+        boardEl.appendChild(div);
+      }
+    }
 
     async function boot() {
       pyodide = await loadPyodide();
@@ -56,41 +247,96 @@
         const code = await (await fetch(file)).text();
         pyodide.FS.writeFile('/home/pyodide/' + file, code);
       }
-      const code = pyodide.FS.readFile('/home/pyodide/dump_json.py', { encoding: 'utf8' })
-        .replace('if __name__ == "__main__":\n    main()', '');
+      let code = pyodide.FS.readFile('/home/pyodide/dump_json.py', { encoding: 'utf8' });
+      code = code.replace(/if __name__ == "__main__":\n\s+main\(\)/, '');
       await pyodide.runPythonAsync(code);
-      status.textContent = 'Ready';
+      statusEl.textContent = 'Engine ready';
+    }
+
+    async function buildChart(payload) {
+      pyodide.globals.set('payload_js', payload);
+      const result = await pyodide.runPythonAsync(`
+import json
+from dump_json import build_chart, palace_to_dict
+
+payload = payload_js.to_py()
+tb, db = build_chart(
+    payload['day'],
+    payload['month'],
+    payload['year'],
+    payload['hour'],
+    payload['gender'],
+    payload.get('name', ''),
+    payload.get('solar', True),
+    payload.get('timezone', 7),
+)
+json.dumps({
+    'thienBan': {
+        'ten': tb.ten,
+        'namNu': tb.namNu,
+        'gioSinh': tb.gioSinh,
+        'ngayDuong': tb.ngayDuong,
+        'thangDuong': tb.thangDuong,
+        'namDuong': tb.namDuong,
+        'ngayAm': tb.ngayAm,
+        'thangAm': tb.thangAm,
+        'namAm': tb.namAm,
+        'canNgayTen': tb.canNgayTen,
+        'chiNgayTen': tb.chiNgayTen,
+        'canThangTen': tb.canThangTen,
+        'chiThangTen': tb.chiThangTen,
+        'canNamTen': tb.canNamTen,
+        'chiNamTen': tb.chiNamTen,
+        'amDuongNamSinh': tb.amDuongNamSinh,
+        'amDuongMenh': tb.amDuongMenh,
+        'tenCuc': tb.tenCuc,
+        'menhChu': tb.menhChu,
+        'thanChu': tb.thanChu,
+        'sinhKhac': tb.sinhKhac,
+        'banMenh': tb.banMenh,
+    },
+    'diaBan': {
+        'cungMenh': db.cungMenh,
+        'cungThan': db.cungThan,
+        'palaces': [palace_to_dict(p) for p in db.thapNhiCung[1:]],
+    },
+}, ensure_ascii=False)
+      `);
+      return JSON.parse(result);
     }
 
     document.getElementById('f').addEventListener('submit', async (e) => {
       e.preventDefault();
       if (!pyodide) return;
-      const args = [
-        '--name', document.getElementById('name').value,
-        '--gender', document.getElementById('gender').value,
-        '--day', document.getElementById('day').value,
-        '--month', document.getElementById('month').value,
-        '--year', document.getElementById('year').value,
-        '--hour', document.getElementById('hour').value,
-        '--timezone', document.getElementById('tz').value,
-      ];
-      if (document.getElementById('solar').value === '1') args.push('--solar');
-      const pyArgs = ['dump_json.py', ...args];
-      pyodide.setInterruptBuffer(new Uint8Array(1));
-      pyodide.runPython('import sys');
-      pyodide.globals.set('argv', pyArgs);
-      const result = await pyodide.runPythonAsync(`
-import sys, io, contextlib
-sys.argv = argv
-buf = io.StringIO()
-with contextlib.redirect_stdout(buf):
-    main()
-buf.getvalue()
-      `);
-      document.getElementById('out').value = result;
+      statusEl.textContent = 'Đang lập lá số...';
+      const payload = {
+        name: document.getElementById('name').value,
+        gender: Number(document.getElementById('gender').value),
+        day: Number(document.getElementById('day').value),
+        month: Number(document.getElementById('month').value),
+        year: Number(document.getElementById('year').value),
+        hour: Number(document.getElementById('hour').value),
+        solar: document.getElementById('solar').value === '1',
+        timezone: Number(document.getElementById('tz').value),
+      };
+      try {
+        lastPayload = await buildChart(payload);
+        renderMeta(lastPayload);
+        renderBoard(lastPayload);
+        outEl.value = JSON.stringify(lastPayload, null, 2);
+        statusEl.textContent = 'Xong';
+      } catch (err) {
+        statusEl.textContent = 'Lỗi: ' + err;
+      }
     });
 
-    boot().catch(err => status.textContent = 'Load error: ' + err);
+    document.getElementById('copyJson').addEventListener('click', async () => {
+      if (!outEl.value) return;
+      await navigator.clipboard.writeText(outEl.value);
+      statusEl.textContent = 'Đã copy JSON';
+    });
+
+    boot().catch(err => statusEl.textContent = 'Load error: ' + err);
   </script>
 </body>
 </html>
