@@ -41,9 +41,23 @@
 
     async function boot() {
       pyodide = await loadPyodide();
-      const url = 'https://raw.githubusercontent.com/nguyenvuong789/lasotuvi-json-dump/main/dump_json.py';
-      const code = await (await fetch(url)).text();
-      await pyodide.loadPackagesFromImports(code);
+      const files = [
+        'dump_json.py',
+        'lasotuvi/__init__.py',
+        'lasotuvi/AmDuong.py',
+        'lasotuvi/App.py',
+        'lasotuvi/DiaBan.py',
+        'lasotuvi/Lich_HND.py',
+        'lasotuvi/Sao.py',
+        'lasotuvi/ThienBan.py',
+      ];
+      pyodide.FS.mkdirTree('/home/pyodide/lasotuvi');
+      for (const file of files) {
+        const code = await (await fetch(file)).text();
+        pyodide.FS.writeFile('/home/pyodide/' + file, code);
+      }
+      const code = pyodide.FS.readFile('/home/pyodide/dump_json.py', { encoding: 'utf8' })
+        .replace('if __name__ == "__main__":\n    main()', '');
       await pyodide.runPythonAsync(code);
       status.textContent = 'Ready';
     }
