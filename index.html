@@ -11,49 +11,72 @@
     input, select, button, textarea { font: inherit; padding: 10px 12px; }
     button { grid-column: 1 / -1; cursor: pointer; }
     textarea { width: 100%; min-height: 520px; margin-top: 16px; white-space: pre; }
-    .row { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
+    .status { margin: 12px 0; padding: 10px 12px; background: #f3f4f6; border-radius: 8px; }
   </style>
 </head>
 <body>
   <h1>lasotuvi JSON dump</h1>
+  <div class="status" id="status">Loading Pyodide...</div>
   <form id="f">
     <label>Họ tên <input id="name" value="WANG WENYIN"></label>
     <label>Giới tính
       <select id="gender"><option value="1">Dương Nam</option><option value="-1">Âm Nữ</option></select>
     </label>
-    <label>Dương lịch? <select id="solar"><option value="1">Có</option><option value="0">Không</option></select></label>
+    <label>Dương lịch?
+      <select id="solar"><option value="1">Có</option><option value="0">Không</option></select>
+    </label>
     <label>Múi giờ <input id="tz" type="number" value="7"></label>
-    <div class="row" style="grid-column: 1 / -1;">
-      <label>Ngày <input id="day" type="number" value="2"></label>
-      <label>Tháng <input id="month" type="number" value="3"></label>
-      <label>Năm <input id="year" type="number" value="1968"></label>
-      <label>Giờ chi <input id="hour" type="number" min="1" max="12" value="5"></label>
-    </div>
+    <label>Ngày <input id="day" type="number" value="2"></label>
+    <label>Tháng <input id="month" type="number" value="3"></label>
+    <label>Năm <input id="year" type="number" value="1968"></label>
+    <label>Giờ chi <input id="hour" type="number" min="1" max="12" value="5"></label>
     <button type="submit">Xuất JSON</button>
   </form>
-  <textarea id="out" spellcheck="false" placeholder="JSON hiện ở đây"></textarea>
+  <textarea id="out" spellcheck="false"></textarea>
+
+  <script src="https://cdn.jsdelivr.net/pyodide/v0.26.2/full/pyodide.js"></script>
   <script>
-    const CHI = [null,'Tý','Sửu','Dần','Mão','Thìn','Tỵ','Ngọ','Mùi','Thân','Dậu','Tuất','Hợi'];
-    function toCanChiHour(hour){ return CHI[Number(hour)] || ''; }
+    let pyodide;
+    const status = document.getElementById('status');
+
+    async function boot() {
+      pyodide = await loadPyodide();
+      const url = 'https://raw.githubusercontent.com/nguyenvuong789/lasotuvi-json-dump/main/dump_json.py';
+      const code = await (await fetch(url)).text();
+      await pyodide.loadPackagesFromImports(code);
+      await pyodide.runPythonAsync(code);
+      status.textContent = 'Ready';
+    }
+
     document.getElementById('f').addEventListener('submit', async (e) => {
       e.preventDefault();
-      const payload = {
-        name: document.getElementById('name').value,
-        gender: Number(document.getElementById('gender').value),
-        day: Number(document.getElementById('day').value),
-        month: Number(document.getElementById('month').value),
-        year: Number(document.getElementById('year').value),
-        hour: Number(document.getElementById('hour').value),
-        solar: document.getElementById('solar').value === '1',
-        timezone: Number(document.getElementById('tz').value),
-      };
-      const res = await fetch('/chart', {
-        method: 'POST',
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify(payload)
-      });
-      document.getElementById('out').value = JSON.stringify(await res.json(), null, 2);
+      if (!pyodide) return;
+      const args = [
+        '--name', document.getElementById('name').value,
+        '--gender', document.getElementById('gender').value,
+        '--day', document.getElementById('day').value,
+        '--month', document.getElementById('month').value,
+        '--year', document.getElementById('year').value,
+        '--hour', document.getElementById('hour').value,
+        '--timezone', document.getElementById('tz').value,
+      ];
+      if (document.getElementById('solar').value === '1') args.push('--solar');
+      const pyArgs = ['dump_json.py', ...args];
+      pyodide.setInterruptBuffer(new Uint8Array(1));
+      pyodide.runPython('import sys');
+      pyodide.globals.set('argv', pyArgs);
+      const result = await pyodide.runPythonAsync(`
+import sys, io, contextlib
+sys.argv = argv
+buf = io.StringIO()
+with contextlib.redirect_stdout(buf):
+    main()
+buf.getvalue()
+      `);
+      document.getElementById('out').value = result;
     });
+
+    boot().catch(err => status.textContent = 'Load error: ' + err);
   </script>
 </body>
 </html>
