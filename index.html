@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>lasotuvi JSON dump</title>
+  <style>
+    body { font-family: system-ui, sans-serif; max-width: 1100px; margin: 24px auto; padding: 0 16px; }
+    form { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+    label { display: grid; gap: 6px; font-size: 14px; }
+    input, select, button, textarea { font: inherit; padding: 10px 12px; }
+    button { grid-column: 1 / -1; cursor: pointer; }
+    textarea { width: 100%; min-height: 520px; margin-top: 16px; white-space: pre; }
+    .row { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
+  </style>
+</head>
+<body>
+  <h1>lasotuvi JSON dump</h1>
+  <form id="f">
+    <label>Họ tên <input id="name" value="WANG WENYIN"></label>
+    <label>Giới tính
+      <select id="gender"><option value="1">Dương Nam</option><option value="-1">Âm Nữ</option></select>
+    </label>
+    <label>Dương lịch? <select id="solar"><option value="1">Có</option><option value="0">Không</option></select></label>
+    <label>Múi giờ <input id="tz" type="number" value="7"></label>
+    <div class="row" style="grid-column: 1 / -1;">
+      <label>Ngày <input id="day" type="number" value="2"></label>
+      <label>Tháng <input id="month" type="number" value="3"></label>
+      <label>Năm <input id="year" type="number" value="1968"></label>
+      <label>Giờ chi <input id="hour" type="number" min="1" max="12" value="5"></label>
+    </div>
+    <button type="submit">Xuất JSON</button>
+  </form>
+  <textarea id="out" spellcheck="false" placeholder="JSON hiện ở đây"></textarea>
+  <script>
+    const CHI = [null,'Tý','Sửu','Dần','Mão','Thìn','Tỵ','Ngọ','Mùi','Thân','Dậu','Tuất','Hợi'];
+    function toCanChiHour(hour){ return CHI[Number(hour)] || ''; }
+    document.getElementById('f').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const payload = {
+        name: document.getElementById('name').value,
+        gender: Number(document.getElementById('gender').value),
+        day: Number(document.getElementById('day').value),
+        month: Number(document.getElementById('month').value),
+        year: Number(document.getElementById('year').value),
+        hour: Number(document.getElementById('hour').value),
+        solar: document.getElementById('solar').value === '1',
+        timezone: Number(document.getElementById('tz').value),
+      };
+      const res = await fetch('/chart', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify(payload)
+      });
+      document.getElementById('out').value = JSON.stringify(await res.json(), null, 2);
+    });
+  </script>
+</body>
+</html>
