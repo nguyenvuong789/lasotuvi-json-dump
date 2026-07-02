@@ -3,137 +3,154 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>lasotuvi viewer</title>
+  <title>Tử Vi Viewer</title>
   <style>
     :root {
-      --bg: #0b1020;
-      --panel: #121933;
-      --panel-2: #182243;
-      --text: #e8ecf8;
-      --muted: #a6b0d0;
-      --line: #2a3768;
-      --accent: #6ea8fe;
-      --good: #2fbf71;
-      --bad: #ff7a7a;
-      --warn: #ffcc66;
-      --shadow: 0 10px 30px rgba(0,0,0,.28);
+      --bg: #f3f7fb;
+      --panel: #ffffff;
+      --line: #d6deea;
+      --line-2: #e8eef6;
+      --text: #243042;
+      --muted: #6f7b8f;
+      --accent: #2a9fb7;
+      --accent-2: #69b6ff;
+      --good: #1f9d5a;
+      --bad: #d94a4a;
+      --main: #a36a00;
+      --shadow: 0 14px 34px rgba(24, 39, 75, 0.08);
     }
     * { box-sizing: border-box; }
-    body {
-      margin: 0;
-      font-family: Inter, system-ui, sans-serif;
-      background: radial-gradient(circle at top, #162247 0, var(--bg) 45%);
-      color: var(--text);
-    }
-    .wrap { max-width: 1440px; margin: 0 auto; padding: 24px; }
-    .hero { display: flex; justify-content: space-between; gap: 16px; align-items: end; margin-bottom: 20px; }
-    .title { font-size: 30px; font-weight: 800; margin: 0; }
-    .sub { color: var(--muted); margin-top: 8px; }
-    .status {
-      padding: 10px 14px; border: 1px solid var(--line); border-radius: 999px;
-      background: rgba(255,255,255,.04); color: var(--muted); white-space: nowrap;
-    }
-    .panel {
-      background: linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.02));
-      border: 1px solid var(--line); border-radius: 20px; box-shadow: var(--shadow);
-    }
-    .controls { padding: 18px; margin-bottom: 20px; }
-    .grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px; }
-    label { display: grid; gap: 6px; font-size: 13px; color: var(--muted); }
+    body { margin: 0; font-family: Inter, system-ui, sans-serif; background: var(--bg); color: var(--text); }
+    .wrap { max-width: 1540px; margin: 0 auto; padding: 22px; }
+    .topbar { display: flex; justify-content: space-between; align-items: center; gap: 16px; margin-bottom: 18px; }
+    .title { font-size: 28px; font-weight: 900; }
+    .status { color: var(--muted); font-size: 14px; }
+    .panel { background: var(--panel); border: 1px solid var(--line); border-radius: 22px; box-shadow: var(--shadow); }
+    .controls { padding: 18px; }
+    .form-grid { display: grid; grid-template-columns: 2.2fr 1fr; gap: 16px; }
+    .stack { display: grid; gap: 14px; }
+    .row-2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+    .row-3 { display: grid; grid-template-columns: 1.2fr 1fr 1fr; gap: 16px; }
+    .row-6 { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 16px; align-items: end; }
+    label { display: grid; gap: 8px; font-size: 15px; font-weight: 700; color: #2c3544; }
     input, select, button, textarea {
-      width: 100%; border: 1px solid var(--line); border-radius: 12px; background: var(--panel-2);
-      color: var(--text); padding: 12px 14px; font: inherit;
+      width: 100%; padding: 16px 18px; border: 2px solid #cdd7e4; border-radius: 12px;
+      font: inherit; color: #4c5563; background: #fff;
     }
-    button {
-      background: linear-gradient(180deg, #6ea8fe, #3d7bfd);
-      border: 0; color: #081224; font-weight: 800; cursor: pointer;
-    }
-    button:hover { filter: brightness(1.05); }
-    .actions { display: flex; gap: 12px; grid-column: 1 / -1; }
-    .actions button.secondary { background: #24325d; color: var(--text); border: 1px solid var(--line); }
-    .summary {
-      display: grid; grid-template-columns: 1.1fr 1fr; gap: 20px; margin-bottom: 20px;
-    }
+    input:focus, select:focus { outline: none; border-color: #7fbcff; box-shadow: 0 0 0 4px rgba(105,182,255,.18); }
+    .big { font-size: 24px; font-weight: 800; }
+    .btn { border: 0; background: var(--accent); color: white; font-weight: 800; cursor: pointer; height: 70px; }
+    .btn.secondary { background: #4f6b92; }
+    .btn:hover { filter: brightness(1.03); }
+    .summary { display: grid; grid-template-columns: 1.15fr 1fr; gap: 18px; margin-top: 18px; }
     .card { padding: 18px; }
-    .meta-grid { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 10px 14px; }
-    .meta-item { padding: 10px 12px; background: rgba(255,255,255,.03); border-radius: 12px; }
-    .meta-item b { display: block; color: var(--muted); font-size: 12px; margin-bottom: 4px; }
-    .board {
-      display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px;
+    .meta-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+    .meta-item { border: 1px solid var(--line-2); border-radius: 14px; padding: 12px 14px; background: #fbfdff; }
+    .meta-item b { display: block; font-size: 12px; color: var(--muted); margin-bottom: 6px; }
+    .chart-shell { margin-top: 18px; padding: 18px; }
+    .legend { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 14px; }
+    .legend .pill { border-radius: 999px; padding: 8px 12px; font-size: 13px; font-weight: 700; border: 1px solid transparent; }
+    .pill.main { background: rgba(163,106,0,.12); color: var(--main); border-color: rgba(163,106,0,.2); }
+    .pill.good { background: rgba(31,157,90,.12); color: var(--good); border-color: rgba(31,157,90,.2); }
+    .pill.bad { background: rgba(217,74,74,.12); color: var(--bad); border-color: rgba(217,74,74,.2); }
+    .pill.other { background: #eef3fa; color: #627086; border-color: #d8e0ec; }
+    .traditional {
+      display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px;
       grid-template-areas:
         "p12 p1 p2 p3"
-        "p11 c c p4"
-        "p10 c c p5"
+        "p11 c1 c2 p4"
+        "p10 c3 c4 p5"
         "p9 p8 p7 p6";
-    }
-    .center {
-      grid-area: c; min-height: 250px; padding: 20px; display: flex; flex-direction: column; gap: 12px; justify-content: center;
-      background: linear-gradient(160deg, rgba(110,168,254,.18), rgba(255,255,255,.03));
+      background: #f8fbff; border: 1px solid var(--line); border-radius: 20px; padding: 12px;
     }
     .palace {
-      min-height: 220px; padding: 14px; display: flex; flex-direction: column; gap: 10px;
-      background: rgba(255,255,255,.03);
+      min-height: 248px; border: 1px solid var(--line); border-radius: 16px; background: white; padding: 12px;
+      display: flex; flex-direction: column; gap: 10px;
     }
-    .palace-head { display: flex; justify-content: space-between; gap: 8px; align-items: start; }
-    .palace-title { font-weight: 800; line-height: 1.2; }
-    .palace-sub { color: var(--muted); font-size: 12px; margin-top: 4px; }
-    .badge-wrap { display: flex; flex-wrap: wrap; gap: 6px; justify-content: end; }
-    .badge {
-      font-size: 11px; padding: 4px 8px; border-radius: 999px; border: 1px solid var(--line); color: var(--muted);
-    }
-    .badge.than { color: #a5ffd6; border-color: rgba(47,191,113,.45); }
-    .badge.tuan, .badge.triet { color: #ffd89e; border-color: rgba(255,204,102,.4); }
-    .stars { display: flex; flex-wrap: wrap; gap: 8px; align-content: start; }
+    .palace-head { display: flex; justify-content: space-between; gap: 8px; }
+    .palace-title { font-weight: 900; font-size: 16px; }
+    .palace-sub { color: var(--muted); font-size: 12px; }
+    .marks { display: flex; flex-wrap: wrap; gap: 6px; justify-content: flex-end; }
+    .mark { font-size: 11px; border-radius: 999px; padding: 3px 8px; background: #eef3fa; color: #617086; }
+    .mark.than { background: rgba(31,157,90,.12); color: var(--good); }
+    .mark.tuan, .mark.triet { background: rgba(163,106,0,.12); color: var(--main); }
+    .star-groups { display: grid; gap: 8px; }
+    .group-title { font-size: 11px; color: var(--muted); font-weight: 800; text-transform: uppercase; }
+    .stars { display: flex; flex-wrap: wrap; gap: 7px; }
     .star {
-      padding: 6px 10px; border-radius: 999px; background: #22315f; border: 1px solid rgba(255,255,255,.06);
-      font-size: 12px; line-height: 1;
+      font-size: 12px; font-weight: 700; padding: 6px 10px; border-radius: 999px; border: 1px solid #dbe3ef; background: #f6f9fc; color: #5f6d83;
     }
-    .star.good { background: rgba(47,191,113,.16); color: #abf5ca; }
-    .star.bad { background: rgba(255,122,122,.14); color: #ffc0c0; }
-    details { margin-top: 20px; }
-    summary { cursor: pointer; color: var(--muted); }
-    textarea { min-height: 360px; margin-top: 12px; }
-    .small { font-size: 12px; color: var(--muted); }
-    @media (max-width: 1100px) {
-      .grid, .summary, .board, .meta-grid { grid-template-columns: repeat(2, minmax(0,1fr)); }
-      .board { grid-template-areas: none; }
-      .center, .palace { grid-area: auto !important; }
+    .star.main { color: var(--main); background: rgba(163,106,0,.1); border-color: rgba(163,106,0,.18); }
+    .star.good { color: var(--good); background: rgba(31,157,90,.1); border-color: rgba(31,157,90,.18); }
+    .star.bad { color: var(--bad); background: rgba(217,74,74,.1); border-color: rgba(217,74,74,.16); }
+    .centerbox {
+      border: 1px dashed var(--line); border-radius: 16px; background: linear-gradient(180deg,#fff,#f8fbff);
+      padding: 14px; display: flex; flex-direction: column; justify-content: center; min-height: 248px;
     }
-    @media (max-width: 720px) {
-      .wrap { padding: 14px; }
-      .grid, .summary, .board, .meta-grid { grid-template-columns: 1fr; }
-      .hero { flex-direction: column; align-items: start; }
-      .actions { flex-direction: column; }
+    .centerbox h3 { margin: 0 0 10px; font-size: 24px; }
+    .centerbox .line { color: var(--muted); margin: 3px 0; }
+    .c1{grid-area:c1}.c2{grid-area:c2}.c3{grid-area:c3}.c4{grid-area:c4}
+    details { margin-top: 16px; }
+    summary { cursor: pointer; color: var(--muted); font-weight: 700; }
+    textarea { min-height: 320px; margin-top: 10px; }
+    @media (max-width: 1200px) {
+      .form-grid, .summary, .row-6, .meta-grid { grid-template-columns: repeat(2, minmax(0,1fr)); }
+      .traditional { grid-template-areas: none; }
+      .palace, .centerbox { grid-area: auto !important; }
+    }
+    @media (max-width: 780px) {
+      .form-grid, .row-2, .row-3, .row-6, .summary, .meta-grid { grid-template-columns: 1fr; }
+      .topbar { flex-direction: column; align-items: start; }
     }
   </style>
 </head>
 <body>
   <div class="wrap">
-    <div class="hero">
-      <div>
-        <h1 class="title">Tử Vi Viewer</h1>
-        <div class="sub">Nhập ngày sinh, giờ chi, giới tính. Render 12 cung trực tiếp trên GitHub Pages.</div>
-      </div>
+    <div class="topbar">
+      <div class="title">Tử Vi Viewer</div>
       <div class="status" id="status">Loading engine...</div>
     </div>
 
     <div class="panel controls">
-      <form id="f" class="grid">
-        <label>Họ tên<input id="name" value="WANG WENYIN"></label>
-        <label>Giới tính
-          <select id="gender"><option value="1">Dương Nam</option><option value="-1">Âm Nữ</option></select>
-        </label>
-        <label>Dương lịch?
-          <select id="solar"><option value="1">Có</option><option value="0">Không</option></select>
-        </label>
-        <label>Múi giờ<input id="tz" type="number" value="7"></label>
-        <label>Ngày<input id="day" type="number" value="2"></label>
-        <label>Tháng<input id="month" type="number" value="3"></label>
-        <label>Năm<input id="year" type="number" value="1968"></label>
-        <label>Giờ chi (1=Tý..12=Hợi)<input id="hour" type="number" min="1" max="12" value="5"></label>
-        <div class="actions">
-          <button type="submit">Lập lá số</button>
-          <button type="button" class="secondary" id="copyJson">Copy JSON</button>
+      <form id="f" class="form-grid">
+        <div class="stack">
+          <div class="row-2">
+            <label>Họ tên<input id="name" class="big" value="Nguyen"></label>
+            <label>Giới tính
+              <select id="gender" class="big"><option value="1">Nam</option><option value="-1" selected>Nữ</option></select>
+            </label>
+          </div>
+          <div class="row-2">
+            <label>Múi giờ
+              <select id="tz" class="big">
+                <option value="7" selected>(UTC+07:00) Múi Giờ Việt Nam</option>
+                <option value="8">(UTC+08:00)</option>
+                <option value="0">(UTC+00:00)</option>
+              </select>
+            </label>
+            <div class="row-2">
+              <label>Lịch
+                <select id="solar" class="big"><option value="1" selected>Dương Lịch</option><option value="0">Âm Lịch</option></select>
+              </label>
+              <label>Sao lưu
+                <select id="hasLuu" class="big"><option value="1" selected>Có Sao Lưu</option><option value="0">Không Sao Lưu</option></select>
+              </label>
+            </div>
+          </div>
+          <div class="row-6">
+            <label>Ngày (DL)<select id="day" class="big"></select></label>
+            <label>Tháng (DL)<select id="month" class="big"></select></label>
+            <label>Năm (DL)<input id="year" class="big" type="number" value="1993"></label>
+            <label>Giờ<select id="hourClock" class="big"></select></label>
+            <label>Phút<select id="minute" class="big"></select></label>
+            <label>Năm Xem<input id="viewYear" class="big" type="number" value="2025"></label>
+          </div>
+        </div>
+        <div class="stack" style="align-content:end;">
+          <button class="btn" type="submit">Lấy lá số</button>
+          <button class="btn secondary" type="button" id="exportPng">Export PNG</button>
+          <button class="btn secondary" type="button" id="copyJson">Copy JSON</button>
+          <div style="font-size:13px;color:var(--muted);padding:6px 4px;">Giờ/phút sẽ tự map sang giờ chi. Repo gốc chưa có sao lưu thật, nên input “Có Sao Lưu” chỉ để giữ UI giống mẫu.</div>
         </div>
       </form>
     </div>
@@ -143,13 +160,22 @@
         <h2>Thông tin</h2>
         <div class="meta-grid" id="meta"></div>
       </div>
-      <div class="panel card center" id="centerCard">
-        <div style="font-size:20px;font-weight:800" id="centerName">Chưa có dữ liệu</div>
-        <div class="small" id="centerDesc">Bấm “Lập lá số” để xem 12 cung.</div>
+      <div class="panel card">
+        <h2>Chú giải</h2>
+        <div class="legend">
+          <span class="pill main">Chính tinh</span>
+          <span class="pill good">Cát tinh</span>
+          <span class="pill bad">Hung tinh</span>
+          <span class="pill other">Phụ tinh / khác</span>
+        </div>
+        <div id="headline" style="font-size:18px;font-weight:800;line-height:1.5">Chưa có lá số</div>
+        <div id="subline" style="margin-top:8px;color:var(--muted)">Nhập dữ liệu rồi bấm “Lấy lá số”.</div>
       </div>
     </div>
 
-    <div class="board" id="board"></div>
+    <div class="panel chart-shell" id="captureArea">
+      <div class="traditional" id="chartBoard"></div>
+    </div>
 
     <details class="panel card">
       <summary>JSON thô</summary>
@@ -157,76 +183,125 @@
     </details>
   </div>
 
+  <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
   <script src="https://cdn.jsdelivr.net/pyodide/v0.26.2/full/pyodide.js"></script>
   <script>
     let pyodide;
     let lastPayload = null;
     const statusEl = document.getElementById('status');
-    const boardEl = document.getElementById('board');
     const metaEl = document.getElementById('meta');
+    const boardEl = document.getElementById('chartBoard');
     const outEl = document.getElementById('out');
+    const headlineEl = document.getElementById('headline');
+    const sublineEl = document.getElementById('subline');
     const palaceAreaMap = {12:'p12',1:'p1',2:'p2',3:'p3',11:'p11',4:'p4',10:'p10',5:'p5',9:'p9',8:'p8',7:'p7',6:'p6'};
+    const majorStarIds = new Set([1,2,3,4,5,6,7,8,9,10,11,12,13,14]);
+
+    function fillSelect(id, start, end, selected, step = 1) {
+      const el = document.getElementById(id);
+      for (let i = start; i <= end; i += step) {
+        const option = document.createElement('option');
+        option.value = String(i);
+        option.textContent = String(i);
+        if (i === selected) option.selected = true;
+        el.appendChild(option);
+      }
+    }
+
+    function initInputs() {
+      fillSelect('day', 1, 31, 28);
+      fillSelect('month', 1, 12, 9);
+      fillSelect('hourClock', 0, 23, 12);
+      fillSelect('minute', 0, 59, 0);
+    }
+
+    function toChiHour(hour, minute) {
+      const total = hour * 60 + minute;
+      const slot = Math.floor(((total + 60) % 1440) / 120);
+      return slot + 1;
+    }
 
     function metaItem(label, value) {
       return `<div class="meta-item"><b>${label}</b><span>${value ?? ''}</span></div>`;
     }
 
-    function starClass(star) {
+    function starTier(star) {
+      if (majorStarIds.has(star.saoID)) return 'main';
       if (star.saoLoai <= 8) return 'good';
       if (star.saoLoai >= 11) return 'bad';
-      return '';
+      return 'other';
     }
 
     function formatStar(star) {
       return `${star.saoTen}${star.saoDacTinh ? `(${star.saoDacTinh})` : ''}`;
     }
 
-    function renderMeta(data) {
+    function renderMeta(data, form) {
       const t = data.thienBan;
       metaEl.innerHTML = [
         metaItem('Họ tên', t.ten || '—'),
         metaItem('Giới tính', t.namNu),
+        metaItem('Âm dương', `${t.amDuongNamSinh} ${t.namNu} / ${t.amDuongMenh}`),
         metaItem('Dương lịch', `${t.ngayDuong}/${t.thangDuong}/${t.namDuong}`),
         metaItem('Âm lịch', `${t.ngayAm}/${t.thangAm}/${t.canNamTen} ${t.chiNamTen}`),
         metaItem('Giờ sinh', t.gioSinh),
-        metaItem('Âm dương', `${t.amDuongNamSinh} ${t.namNu} / ${t.amDuongMenh}`),
         metaItem('Bản mệnh', t.banMenh),
         metaItem('Cục', t.tenCuc),
         metaItem('Mệnh chủ', t.menhChu),
         metaItem('Thân chủ', t.thanChu),
         metaItem('Mệnh/Cục', t.sinhKhac),
-        metaItem('Can chi ngày', `${t.canNgayTen} ${t.chiNgayTen}`),
+        metaItem('Năm xem', form.viewYear),
       ].join('');
+      headlineEl.textContent = `${t.ten || 'Không tên'} • ${t.namNu} • ${t.gioSinh}`;
+      sublineEl.textContent = `${t.banMenh} • ${t.tenCuc} • ${t.sinhKhac}`;
+    }
 
-      document.getElementById('centerName').textContent = t.ten || 'Không tên';
-      document.getElementById('centerDesc').textContent = `${t.namNu} • ${t.gioSinh} • ${t.banMenh} • ${t.tenCuc}`;
+    function palaceHtml(palace) {
+      const marks = [];
+      if (palace.cungThan) marks.push('<span class="mark than">Thân</span>');
+      if (palace.tuanTrung) marks.push('<span class="mark tuan">Tuần</span>');
+      if (palace.trietLo) marks.push('<span class="mark triet">Triệt</span>');
+      const groups = { main: [], good: [], bad: [], other: [] };
+      for (const star of palace.stars) groups[starTier(star)].push(star);
+      const groupBlock = (title, key) => groups[key].length ? `
+        <div class="star-groups">
+          <div class="group-title">${title}</div>
+          <div class="stars">${groups[key].map(star => `<span class="star ${key}">${formatStar(star)}</span>`).join('')}</div>
+        </div>` : '';
+      return `
+        <div class="palace-head">
+          <div>
+            <div class="palace-title">${palace.cungChu || '—'} (${palace.cungTen})</div>
+            <div class="palace-sub">ĐV ${palace.cungDaiHan ?? '—'} • Tiểu hạn ${palace.cungTieuHan ?? '—'} • ${palace.hanhCung}</div>
+          </div>
+          <div class="marks">${marks.join('')}</div>
+        </div>
+        ${groupBlock('Chính tinh', 'main')}
+        ${groupBlock('Cát tinh', 'good')}
+        ${groupBlock('Hung tinh', 'bad')}
+        ${groupBlock('Khác', 'other')}
+      `;
     }
 
     function renderBoard(data) {
       const palaces = [...data.diaBan.palaces].sort((a, b) => a.cungSo - b.cungSo);
+      const bySo = Object.fromEntries(palaces.map(p => [p.cungSo, p]));
+      const centerBoxes = `
+        <div class="centerbox c1"><h3>${data.thienBan.ten || '—'}</h3><div class="line">${data.thienBan.namNu}</div><div class="line">${data.thienBan.gioSinh}</div></div>
+        <div class="centerbox c2"><h3>${data.thienBan.banMenh}</h3><div class="line">${data.thienBan.tenCuc}</div><div class="line">${data.thienBan.sinhKhac}</div></div>
+        <div class="centerbox c3"><h3>Mệnh chủ</h3><div class="line">${data.thienBan.menhChu}</div><div class="line">Thân chủ: ${data.thienBan.thanChu}</div></div>
+        <div class="centerbox c4"><h3>${data.thienBan.ngayDuong}/${data.thienBan.thangDuong}/${data.thienBan.namDuong}</h3><div class="line">ÂL ${data.thienBan.ngayAm}/${data.thienBan.thangAm}/${data.thienBan.namAm}</div><div class="line">${data.thienBan.canNamTen} ${data.thienBan.chiNamTen}</div></div>
+      `;
       boardEl.innerHTML = '';
-      for (const palace of palaces) {
-        const tags = [];
-        if (palace.cungThan) tags.push('<span class="badge than">Thân</span>');
-        if (palace.tuanTrung) tags.push('<span class="badge tuan">Tuần</span>');
-        if (palace.trietLo) tags.push('<span class="badge triet">Triệt</span>');
-        const stars = palace.stars.length
-          ? palace.stars.map(star => `<span class="star ${starClass(star)}">${formatStar(star)}</span>`).join('')
-          : '<span class="small">Không có sao</span>';
+      const order = [12,1,2,3,11,4,10,5,9,8,7,6];
+      for (const so of order) {
+        const palace = bySo[so];
         const div = document.createElement('div');
-        div.className = 'panel palace';
-        div.style.gridArea = palaceAreaMap[palace.cungSo] || 'auto';
-        div.innerHTML = `
-          <div class="palace-head">
-            <div>
-              <div class="palace-title">${palace.cungChu || '—'} <span style="color:var(--muted)">(${palace.cungTen})</span></div>
-              <div class="palace-sub">ĐV ${palace.cungDaiHan ?? '—'} • Tiểu hạn ${palace.cungTieuHan ?? '—'} • Hành ${palace.hanhCung}</div>
-            </div>
-            <div class="badge-wrap">${tags.join('')}</div>
-          </div>
-          <div class="stars">${stars}</div>
-        `;
+        div.className = 'palace';
+        div.style.gridArea = palaceAreaMap[so] || 'auto';
+        div.innerHTML = palaceHtml(palace);
         boardEl.appendChild(div);
+        if (so === 3) boardEl.insertAdjacentHTML('beforeend', centerBoxes);
       }
     }
 
@@ -247,9 +322,7 @@
       for (const file of files) {
         const response = await fetch(base + file + '?v=' + Date.now(), { cache: 'no-store' });
         const code = await response.text();
-        if (code.trimStart().startsWith('<!doctype html') || code.includes('<html')) {
-          throw new Error('Fetched HTML instead of Python: ' + file);
-        }
+        if (code.trimStart().startsWith('<!doctype html') || code.includes('<html')) throw new Error('Fetched HTML instead of Python: ' + file);
         pyodide.FS.writeFile('/home/pyodide/' + file, code);
       }
       let code = pyodide.FS.readFile('/home/pyodide/dump_json.py', { encoding: 'utf8' });
@@ -263,7 +336,6 @@
       const result = await pyodide.runPythonAsync(`
 import json
 from dump_json import build_chart, palace_to_dict
-
 payload = payload_js.to_py()
 tb, db = build_chart(
     payload['day'],
@@ -314,22 +386,26 @@ json.dumps({
       e.preventDefault();
       if (!pyodide) return;
       statusEl.textContent = 'Đang lập lá số...';
-      const payload = {
+      const hour = Number(document.getElementById('hourClock').value);
+      const minute = Number(document.getElementById('minute').value);
+      const form = {
         name: document.getElementById('name').value,
         gender: Number(document.getElementById('gender').value),
         day: Number(document.getElementById('day').value),
         month: Number(document.getElementById('month').value),
         year: Number(document.getElementById('year').value),
-        hour: Number(document.getElementById('hour').value),
+        hour: toChiHour(hour, minute),
         solar: document.getElementById('solar').value === '1',
         timezone: Number(document.getElementById('tz').value),
+        viewYear: Number(document.getElementById('viewYear').value),
+        hasLuu: document.getElementById('hasLuu').value === '1',
       };
       try {
-        lastPayload = await buildChart(payload);
-        renderMeta(lastPayload);
+        lastPayload = await buildChart(form);
+        renderMeta(lastPayload, form);
         renderBoard(lastPayload);
-        outEl.value = JSON.stringify(lastPayload, null, 2);
-        statusEl.textContent = 'Xong';
+        outEl.value = JSON.stringify({ ...lastPayload, input: form }, null, 2);
+        statusEl.textContent = `Xong • giờ chi ${form.hour}`;
       } catch (err) {
         statusEl.textContent = 'Lỗi: ' + err;
       }
@@ -341,6 +417,17 @@ json.dumps({
       statusEl.textContent = 'Đã copy JSON';
     });
 
+    document.getElementById('exportPng').addEventListener('click', async () => {
+      const node = document.getElementById('captureArea');
+      const canvas = await html2canvas(node, { backgroundColor: '#f3f7fb', scale: 2, useCORS: true });
+      const a = document.createElement('a');
+      a.href = canvas.toDataURL('image/png');
+      a.download = `la-so-tu-vi-${Date.now()}.png`;
+      a.click();
+      statusEl.textContent = 'Đã export PNG';
+    });
+
+    initInputs();
     boot().catch(err => statusEl.textContent = 'Load error: ' + err);
   </script>
 </body>
