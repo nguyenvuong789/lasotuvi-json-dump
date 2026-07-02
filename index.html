@@ -234,7 +234,7 @@
     const headlineEl = document.getElementById('headline');
     const sublineEl = document.getElementById('subline');
     const timeHintEl = document.getElementById('timeHint');
-    const palaceAreaMap = {12:'p12',1:'p1',2:'p2',3:'p3',11:'p11',4:'p4',10:'p10',5:'p5',9:'p9',8:'p8',7:'p7',6:'p6'};
+    const palaceAreaMap = {9:'p12',10:'p1',11:'p2',12:'p3',8:'p11',1:'p4',7:'p10',2:'p5',6:'p9',5:'p8',4:'p7',3:'p6'};
     const majorStarIds = new Set([1,2,3,4,5,6,7,8,9,10,11,12,13,14]);
     const chiNames = [null,'Tý','Sửu','Dần','Mão','Thìn','Tỵ','Ngọ','Mùi','Thân','Dậu','Tuất','Hợi'];
 
@@ -308,7 +308,7 @@
       const ctLine = groups.ct.length ? groups.ct.map(({star}) => `<span class="ct-star">${formatStar(star)}</span>`).join('') : '&nbsp;';
       return `
         <div class="palace-head">
-          <div class="palace-canchi">${String(palace.cungTen || '').charAt(0).toUpperCase()}. ${String(palace.cungTen || '').slice(1,4).toLowerCase()}</div>
+          <div class="palace-canchi">${String(palace.cungTen || '')}</div>
           <div class="palace-title">${palace.cungChu || '—'}</div>
           <div class="palace-age">${palace.cungDaiHan ?? ''}</div>
         </div>
@@ -355,7 +355,7 @@
       const palaces = [...data.diaBan.palaces].sort((a,b)=>a.cungSo-b.cungSo);
       const bySo = Object.fromEntries(palaces.map(p => [p.cungSo, p]));
       boardEl.innerHTML = renderCenter(data, form);
-      for (const so of [12,1,2,3,11,4,10,5,9,8,7,6]) {
+      for (const so of [9,10,11,12,8,1,7,2,6,5,4,3]) {
         const palace = bySo[so];
         const div = document.createElement('div');
         div.className = 'palace';
