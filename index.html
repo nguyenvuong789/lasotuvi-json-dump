@@ -68,6 +68,91 @@
     textarea { min-height:320px; margin-top:10px; }
     @media (max-width: 1220px) { .form-grid, .summary, .row-6, .meta-grid { grid-template-columns: repeat(2, minmax(0,1fr)); } .tuvi-board { grid-template-areas:none; } .palace, .centerbox { grid-area:auto !important; } }
     @media (max-width: 780px) { .form-grid, .row-2, .row-6, .summary, .meta-grid { grid-template-columns: 1fr; } .topbar { flex-direction:column; align-items:flex-start; } }
+  
+    /* Traditional chart like sample */
+    .chart-shell { background:#fff; padding:0; overflow:auto; }
+    .tuvi-board {
+      position: relative;
+      display:grid;
+      grid-template-columns: repeat(4, 1fr);
+      grid-template-rows: repeat(4, minmax(238px, auto));
+      gap:0;
+      grid-template-areas:
+        'p12 p1 p2 p3'
+        'p11 center center p4'
+        'p10 center center p5'
+        'p9 p8 p7 p6';
+      min-width: 1020px;
+      background:#f8f4ec;
+      border:2px solid #000;
+      border-radius:0;
+      padding:0;
+      background-image:
+        radial-gradient(circle at center, rgba(190,165,120,.18), transparent 42%),
+        linear-gradient(135deg, rgba(255,255,255,.65), rgba(255,255,255,.18));
+    }
+    .palace {
+      min-height:238px;
+      border:0;
+      border-right:2px solid #000;
+      border-bottom:2px solid #000;
+      border-radius:0;
+      background:rgba(255,255,255,.52);
+      padding:8px 8px 6px;
+      display:grid;
+      grid-template-rows:auto auto 1fr auto;
+      gap:6px;
+      box-shadow:none;
+    }
+    .palace:nth-child(4n) { border-right:0; }
+    .palace-head { display:grid; grid-template-columns: 48px 1fr 42px; gap:4px; align-items:start; }
+    .palace-canchi { font-weight:900; color:#17398a; font-size:13px; }
+    .palace-title { text-align:center; font-size:15px; color:#111f86; font-weight:900; text-transform:uppercase; line-height:1.2; }
+    .palace-age { text-align:right; font-weight:900; font-size:13px; color:#111; }
+    .ct-line { text-align:center; min-height:38px; color:#d61515; font-size:17px; font-weight:900; line-height:1.25; }
+    .ct-line .ct-star { display:block; }
+    .star-cols { display:grid; grid-template-columns: 1fr 1fr; gap:4px; align-content:start; }
+    .star-list { display:flex; flex-direction:column; gap:2px; min-width:0; }
+    .star-text { font-size:13px; line-height:1.15; font-weight:700; white-space:normal; overflow-wrap:anywhere; }
+    .star-text.good { color:#078b2a; }
+    .star-text.bad { color:#d31717; }
+    .star-text.other { color:#111; }
+    .star-text.l, .star-text.ln, .star-text.dv { color:#0a8f29; }
+    .palace-footer { display:grid; grid-template-columns:1fr auto 1fr; gap:4px; align-items:end; font-size:13px; color:#111; }
+    .palace-footer b { font-weight:900; text-align:center; }
+    .palace-footer span:last-child { text-align:right; }
+    .palace-flags { position:absolute; display:flex; gap:4px; flex-wrap:wrap; }
+    .flag { border-radius:0; padding:2px 8px; background:#000; color:#fff; font-size:13px; line-height:1; }
+    .flag.than { background:#111; color:#fff; }
+    .flag.tuan, .flag.triet { background:#000; color:#fff; }
+    .centerbox { display:none; }
+    .center-panel {
+      grid-area:center;
+      border-right:2px solid #000;
+      border-bottom:2px solid #000;
+      background:rgba(255,255,255,.42);
+      position:relative;
+      min-height:476px;
+      padding:26px 28px;
+      overflow:hidden;
+    }
+    .center-panel:before, .center-panel:after {
+      content:""; position:absolute; left:0; top:0; width:100%; height:100%; pointer-events:none;
+      background:linear-gradient(112deg, transparent 49.6%, rgba(0,0,0,.28) 50%, transparent 50.4%);
+    }
+    .center-panel:after { background:linear-gradient(68deg, transparent 49.6%, rgba(0,0,0,.28) 50%, transparent 50.4%); }
+    .center-content { position:relative; z-index:1; display:grid; grid-template-columns:1.1fr .9fr; gap:12px 30px; font-size:14px; line-height:1.45; }
+    .center-row { display:grid; grid-template-columns:82px 1fr; gap:8px; }
+    .center-row b { color:#111; }
+    .center-row span { color:#001785; font-weight:800; }
+    .center-note { grid-column:1/-1; margin-top:18px; color:#d31717; font-weight:900; line-height:1.35; }
+    .watermark { position:absolute; right:34px; top:82px; font-size:78px; writing-mode:vertical-rl; color:rgba(0,0,0,.82); font-family:serif; font-weight:900; z-index:0; }
+    .stamp { position:absolute; right:76px; top:238px; border:4px solid #c81818; color:#c81818; font-weight:900; padding:8px; transform:rotate(-3deg); z-index:1; }
+    @media (max-width: 1220px) {
+      .tuvi-board { grid-template-areas:'p12 p1 p2 p3' 'p11 center center p4' 'p10 center center p5' 'p9 p8 p7 p6'; grid-template-columns:repeat(4,1fr); }
+      .palace, .center-panel { grid-area: var(--area) !important; }
+    }
+
   </style>
 </head>
 <body>
@@ -187,9 +272,9 @@
       if ((star.saoTen || '').startsWith('LN.')) return 'ln';
       if ((star.saoTen || '').startsWith('ĐV.')) return 'dv';
       if (majorStarIds.has(star.saoID)) return 'ct';
-      if (star.saoLoai >= 11) return 'pt bad';
-      if (star.saoLoai <= 8) return 'pt good';
-      return 'pt other';
+      if (star.saoLoai >= 11) return 'bad';
+      if (star.saoLoai <= 8) return 'good';
+      return 'other';
     }
     function formatStar(star) { return `${star.saoTen}${star.saoDacTinh ? ` (${star.saoDacTinh})` : ''}`; }
     function renderMeta(data, form) {
@@ -198,36 +283,85 @@
       headlineEl.textContent = `${t.ten || 'Không tên'} • ${t.namNu} • ${t.gioSinh} • ${form.viewYear}`;
       sublineEl.textContent = `${t.banMenh} • ${t.tenCuc} • ${t.sinhKhac}`;
     }
-    function groupStars(stars) {
-      const groups = { ct: [], pt: [], l: [], ln: [], dv: [] };
-      for (const star of stars) {
+    function splitStars(stars) {
+      const ct = [];
+      const left = [];
+      const right = [];
+      for (const star of stars || []) {
         const tier = starTier(star);
-        if (tier === 'ct') groups.ct.push({ star, cls: 'ct' });
-        else if (tier.startsWith('pt')) groups.pt.push({ star, cls: tier });
-        else if (tier === 'l') groups.l.push({ star, cls: 'l' });
-        else if (tier === 'ln') groups.ln.push({ star, cls: 'ln' });
-        else if (tier === 'dv') groups.dv.push({ star, cls: 'dv' });
+        const item = { star, cls: tier };
+        if (tier === 'ct') ct.push(item);
+        else if (right.length < left.length) right.push(item);
+        else left.push(item);
       }
-      return groups;
+      return { ct, left, right };
     }
-    function sectionHtml(label, items) { return items.length ? `<div class="section"><div class="sec-label">${label}</div><div class="stars">${items.map(({star, cls}) => `<span class="star ${cls}">${formatStar(star)}</span>`).join('')}</div></div>` : ''; }
+    function starText({star, cls}) {
+      return `<div class="star-text ${cls}">${formatStar(star)}</div>`;
+    }
     function palaceHtml(palace) {
-      const groups = groupStars(palace.stars || []);
+      const groups = splitStars(palace.stars || []);
       const flags = [];
       if (palace.cungThan) flags.push('<span class="flag than">THÂN</span>');
-      if (palace.tuanTrung) flags.push('<span class="flag tuan">TUẦN</span>');
-      if (palace.trietLo) flags.push('<span class="flag triet">TRIỆT</span>');
-      return `<div class="palace-head"><div><div class="palace-title">${palace.cungChu || '—'}</div><div class="palace-chi">${String(palace.cungTen || '').toUpperCase()}</div></div><div class="palace-flags">${flags.join('')}</div></div>${sectionHtml('CT', groups.ct)}${sectionHtml('PT', groups.pt)}${sectionHtml('L', groups.l)}${sectionHtml('LN', groups.ln)}${sectionHtml('ĐV', groups.dv)}<div class="footer-line"><span>${palace.hanhCung}</span><span>${palace.cungDaiHan ?? '—'}</span></div>`;
+      if (palace.tuanTrung) flags.push('<span class="flag tuan">Tuần</span>');
+      if (palace.trietLo) flags.push('<span class="flag triet">Triệt</span>');
+      const ctLine = groups.ct.length ? groups.ct.map(({star}) => `<span class="ct-star">${formatStar(star)}</span>`).join('') : '&nbsp;';
+      return `
+        <div class="palace-head">
+          <div class="palace-canchi">${String(palace.cungTen || '').charAt(0).toUpperCase()}. ${String(palace.cungTen || '').slice(1)}</div>
+          <div class="palace-title">${palace.cungChu || '—'}</div>
+          <div class="palace-age">${palace.cungDaiHan ?? ''}</div>
+        </div>
+        <div class="ct-line">${ctLine}</div>
+        <div class="star-cols">
+          <div class="star-list">${groups.left.map(starText).join('')}</div>
+          <div class="star-list">${groups.right.map(starText).join('')}</div>
+        </div>
+        <div class="palace-footer"><span>năm ${palace.cungTieuHan ?? ''}</span><b>${palace.hanhCung || ''}</b><span>tháng ${palace.cungSo}</span></div>
+        <div class="palace-flags">${flags.join('')}</div>
+      `;
     }
-    function renderBoard(data) {
+    function renderCenter(data, form) {
+      const t = data.thienBan;
+      return `
+        <div class="center-panel" style="--area:center">
+          <div class="watermark">理數越</div>
+          <div class="stamp">TỬ<br>VI</div>
+          <div class="center-content">
+            <div>
+              <div class="center-row"><b>Họ tên:</b><span>${t.ten || '—'}</span></div>
+              <div class="center-row"><b>Năm:</b><span>${t.namDuong}</span></div>
+              <div class="center-row"><b>Tháng:</b><span>${t.thangDuong} / ${t.thangAm}</span></div>
+              <div class="center-row"><b>Ngày:</b><span>${t.ngayDuong} / ${t.ngayAm}</span></div>
+              <div class="center-row"><b>Giờ:</b><span>${t.gioSinh}</span></div>
+              <br>
+              <div class="center-row"><b>Năm xem:</b><span>${form.viewYear}</span></div>
+            </div>
+            <div>
+              <div class="center-row"><b>Mệnh:</b><span>${t.banMenh}</span></div>
+              <div class="center-row"><b>Cục:</b><span>${t.tenCuc}</span></div>
+              <div class="center-row"><b>Âm Dương:</b><span>${t.amDuongNamSinh} ${t.namNu}<br>${t.amDuongMenh}</span></div>
+              <div class="center-row"><b>Mệnh/Cục:</b><span>${t.sinhKhac}</span></div>
+              <br>
+              <div class="center-row"><b>Mệnh chủ:</b><span>${t.menhChu}</span></div>
+              <div class="center-row"><b>Thân chủ:</b><span>${t.thanChu}</span></div>
+            </div>
+            <div class="center-note">Để luận giải, nhập đúng ngày giờ sinh. Bản này dùng engine lasotuvi public, chưa đủ sao lưu như tuvi8.</div>
+          </div>
+        </div>
+      `;
+    }
+    function renderBoard(data, form) {
       const palaces = [...data.diaBan.palaces].sort((a,b)=>a.cungSo-b.cungSo);
       const bySo = Object.fromEntries(palaces.map(p => [p.cungSo, p]));
-      boardEl.innerHTML = `<div class="centerbox c1"><h3>${data.thienBan.ten || '—'}</h3><div class="line">${data.thienBan.namNu}</div><div class="line">${data.thienBan.gioSinh}</div></div><div class="centerbox c2"><h3>${data.thienBan.banMenh}</h3><div class="line">${data.thienBan.tenCuc}</div><div class="line">${data.thienBan.sinhKhac}</div></div><div class="centerbox c3"><h3>Mệnh chủ</h3><div class="line">${data.thienBan.menhChu}</div><div class="line">Thân chủ: ${data.thienBan.thanChu}</div></div><div class="centerbox c4"><h3>${data.thienBan.ngayDuong}/${data.thienBan.thangDuong}/${data.thienBan.namDuong}</h3><div class="line">ÂL ${data.thienBan.ngayAm}/${data.thienBan.thangAm}/${data.thienBan.namAm}</div><div class="line">${data.thienBan.canNamTen} ${data.thienBan.chiNamTen}</div></div>`;
+      boardEl.innerHTML = renderCenter(data, form);
       for (const so of [12,1,2,3,11,4,10,5,9,8,7,6]) {
         const palace = bySo[so];
         const div = document.createElement('div');
         div.className = 'palace';
-        div.style.gridArea = palaceAreaMap[so] || 'auto';
+        const area = palaceAreaMap[so] || 'auto';
+        div.style.gridArea = area;
+        div.style.setProperty('--area', area);
         div.innerHTML = palaceHtml(palace);
         boardEl.appendChild(div);
       }
@@ -264,7 +398,7 @@
       if (!pyodide) return;
       statusEl.textContent = 'Đang lập lá số...';
       const form = { name: document.getElementById('name').value, gender: Number(document.getElementById('gender').value), day: Number(document.getElementById('day').value), month: Number(document.getElementById('month').value), year: Number(document.getElementById('year').value), hour: toChiHour(Number(document.getElementById('hourClock').value), Number(document.getElementById('minute').value)), solar: document.getElementById('solar').value === '1', timezone: Number(document.getElementById('tz').value), viewYear: Number(document.getElementById('viewYear').value), hasLuu: document.getElementById('hasLuu').value === '1' };
-      try { const payload = await buildChart(form); renderMeta(payload, form); renderBoard(payload); outEl.value = JSON.stringify({ ...payload, input: form }, null, 2); statusEl.textContent = `Xong • giờ chi ${form.hour} (${chiNames[form.hour]})`; } catch (err) { statusEl.textContent = 'Lỗi: ' + err; }
+      try { const payload = await buildChart(form); renderMeta(payload, form); renderBoard(payload, form); outEl.value = JSON.stringify({ ...payload, input: form }, null, 2); statusEl.textContent = `Xong • giờ chi ${form.hour} (${chiNames[form.hour]})`; } catch (err) { statusEl.textContent = 'Lỗi: ' + err; }
     });
     document.getElementById('copyJson').addEventListener('click', async () => { if (outEl.value) { await navigator.clipboard.writeText(outEl.value); statusEl.textContent = 'Đã copy JSON'; } });
     document.getElementById('exportPng').addEventListener('click', async () => { const node = document.getElementById('captureArea'); const canvas = await html2canvas(node, { backgroundColor: '#f2f5fa', scale: 2, useCORS: true }); const a = document.createElement('a'); a.href = canvas.toDataURL('image/png'); a.download = `la-so-tu-vi-${Date.now()}.png`; a.click(); statusEl.textContent = 'Đã export PNG'; });
