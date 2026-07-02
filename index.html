@@ -232,6 +232,7 @@
 
     async function boot() {
       pyodide = await loadPyodide();
+      const base = 'https://raw.githubusercontent.com/nguyenvuong789/lasotuvi-json-dump/main/';
       const files = [
         'dump_json.py',
         'lasotuvi/__init__.py',
@@ -244,7 +245,11 @@
       ];
       pyodide.FS.mkdirTree('/home/pyodide/lasotuvi');
       for (const file of files) {
-        const code = await (await fetch(file)).text();
+        const response = await fetch(base + file + '?v=' + Date.now(), { cache: 'no-store' });
+        const code = await response.text();
+        if (code.trimStart().startsWith('<!doctype html') || code.includes('<html')) {
+          throw new Error('Fetched HTML instead of Python: ' + file);
+        }
         pyodide.FS.writeFile('/home/pyodide/' + file, code);
       }
       let code = pyodide.FS.readFile('/home/pyodide/dump_json.py', { encoding: 'utf8' });
